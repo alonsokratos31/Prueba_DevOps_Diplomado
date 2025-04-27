@@ -38,8 +38,7 @@ pipeline {
           sh """
             mvn sonar:sonar \
               -Dsonar.projectKey=CursoDevSecOpsTestFinal \
-              -Dsonar.host.url=${SONARQUBE_URL} \
-              -Dsonar.login=${SONARQUBE_TOKEN}
+              -Dsonar.host.url=${SONARQUBE_URL}
           """
         }
       }
