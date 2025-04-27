@@ -48,9 +48,9 @@ pipeline {
     stage('Instalar Chrome y ChromeDriver') {
       steps {
         sh '''
-          sudo apt-get update
-          sudo apt-get install -y chromium-chromedriver chromium-browser
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
+          apt-get update
+          apt-get install -y chromium-chromedriver chromium-browser
+          ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
           chromedriver --version
         '''
       }
