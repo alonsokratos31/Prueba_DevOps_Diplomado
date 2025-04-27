@@ -15,31 +15,6 @@ pipeline {
       }
     }
 
-    stage('Levantar SonarQube') {
-      steps {
-        script {
-          sh '''
-            docker run -d --name sonarqube -p 9000:9000 \
-              -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
-              sonarqube:9.9-community
-          '''
-          // Esperar que Sonar esté listo
-          sh '''
-            echo "Esperando que SonarQube esté disponible..."
-            for i in {1..15}; do
-              if curl -s http://localhost:9000/api/system/health | grep -q '"status":"UP"'; then
-                echo "✅ SonarQube está listo"
-                break
-              else
-                echo "⏳ Intento $i esperando SonarQube..."
-                sleep 5
-              fi
-            done
-          '''
-        }
-      }
-    }
-
     stage('Build y Package') {
       steps {
         sh 'mvn clean package spring-boot:repackage -DskipTests'
@@ -51,7 +26,7 @@ pipeline {
         withSonarQubeEnv('SonarQubeServer') {
           sh """
             mvn sonar:sonar \
-              -Dsonar.projectKey=calculadora-api \
+              -Dsonar.projectKey=CursoDevSecOpsTestFinal \
               -Dsonar.host.url=${SONARQUBE_URL} \
               -Dsonar.login=${SONARQUBE_TOKEN}
           """
@@ -119,13 +94,15 @@ pipeline {
   post {
     always {
       echo '🧹 Limpiando recursos...'
-      sh '''
-        if [ -f pid.txt ]; then
-          kill $(cat pid.txt) || echo "No se pudo detener la app"
-        fi
-        docker stop sonarqube || true
-        docker rm sonarqube || true
-      '''
+      node { // Add node block to ensure sh steps are executed with correct context
+        sh '''
+          if [ -f pid.txt ]; then
+            kill $(cat pid.txt) || echo "No se pudo detener la app"
+          fi
+          docker stop sonarqube || true
+          docker rm sonarqube || true
+        '''
+      }
     }
   }
 }
