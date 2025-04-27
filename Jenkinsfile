@@ -25,9 +25,6 @@ pipeline {
         maven 'mavenlocal'  // El nombre aquí debe coincidir con el que configuraste en Jenkins
       }
       steps {
-        sh 'mvn -v'  // Verificar la versión de Maven
-      }
-      steps {
         sh 'mvn clean package spring-boot:repackage -DskipTests'
       }
     }
