@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { label 'my-agent' } // Especifica el label del agente donde debe ejecutarse el trabajo
 
   environment {
     JAVA_HOME = tool name: 'JDK 17', type: 'jdk'
@@ -73,7 +73,7 @@ pipeline {
     stage('Levantar la aplicación') {
       steps {
         sh '''
-          nohup java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar &
+          nohup java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar & 
           echo $! > pid.txt
         '''
       }
@@ -118,10 +118,14 @@ pipeline {
 
   post {
     always {
-        node {
-            echo "🧹 Limpiando recursos..."
-            sh 'echo "Aquí comandos de limpieza o cierre"'
-        }
+      echo '🧹 Limpiando recursos...'
+      sh '''
+        if [ -f pid.txt ]; then
+          kill $(cat pid.txt) || echo "No se pudo detener la app"
+        fi
+        docker stop sonarqube || true
+        docker rm sonarqube || true
+      '''
     }
-}
+  }
 }
