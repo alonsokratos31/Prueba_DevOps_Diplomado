@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     JAVA_HOME = tool name: 'JDK-24', type: 'jdk'
-    PATH = "${JAVA_HOME}/bin:${env.PATH}"
+    PATH = "\"${JAVA_HOME}/bin\":${env.PATH}"
     SONARQUBE_URL = 'http://host.docker.internal:9000'
     SONARQUBE_TOKEN = 'sqb_84b561786662b143d281fe95cd085ddd89e5328f' // Define este secreto en Jenkins
   }
@@ -23,6 +23,9 @@ pipeline {
     stage('Build y Package') {
       tools {
         maven 'mavenlocal'  // El nombre aquí debe coincidir con el que configuraste en Jenkins
+      }
+      steps {
+        sh 'mvn -v'  // Verificar la versión de Maven
       }
       steps {
         sh 'mvn clean package spring-boot:repackage -DskipTests'
