@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'my-agent' } // Especifica el label del agente donde debe ejecutarse el trabajo
+  agent { label 'Calculadora-API-CI' } // Especifica el label del agente donde debe ejecutarse el trabajo
 
   environment {
     JAVA_HOME = tool name: 'JDK 17', type: 'jdk'
@@ -94,15 +94,13 @@ pipeline {
   post {
     always {
       echo '🧹 Limpiando recursos...'
-      node { // Add node block to ensure sh steps are executed with correct context
-        sh '''
-          if [ -f pid.txt ]; then
-            kill $(cat pid.txt) || echo "No se pudo detener la app"
-          fi
-          docker stop sonarqube || true
-          docker rm sonarqube || true
-        '''
-      }
+      sh '''
+        if [ -f pid.txt ]; then
+          kill $(cat pid.txt) || echo "No se pudo detener la app"
+        fi
+        docker stop sonarqube || true
+        docker rm sonarqube || true
+      '''
     }
   }
 }
