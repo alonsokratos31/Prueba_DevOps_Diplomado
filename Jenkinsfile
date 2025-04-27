@@ -4,8 +4,8 @@ pipeline {
   environment {
     JAVA_HOME = tool name: 'JDK 17', type: 'jdk'
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    SONARQUBE_URL = 'http://localhost:9000'
-    SONARQUBE_TOKEN = credentials('sonarqube-token') // Define este secreto en Jenkins
+    SONARQUBE_URL = 'http://host.docker.internal:9000'
+    SONARQUBE_TOKEN = 'sqb_84b561786662b143d281fe95cd085ddd89e5328f' // Define este secreto en Jenkins
   }
 
   stages {
@@ -51,9 +51,9 @@ pipeline {
         withSonarQubeEnv('SonarQubeServer') {
           sh """
             mvn sonar:sonar \
-              -Dsonar.projectKey=CursoDevSecOpsTestFinal \
-              -Dsonar.host.url=http://host.docker.internal:9000 \
-              -Dsonar.login=sqb_84b561786662b143d281fe95cd085ddd89e5328f
+              -Dsonar.projectKey=calculadora-api \
+              -Dsonar.host.url=${SONARQUBE_URL} \
+              -Dsonar.login=${SONARQUBE_TOKEN}
           """
         }
       }
@@ -118,14 +118,10 @@ pipeline {
 
   post {
     always {
-      echo '🧹 Limpiando recursos...'
-      sh '''
-        if [ -f pid.txt ]; then
-          kill $(cat pid.txt) || echo "No se pudo detener la app"
-        fi
-        docker stop sonarqube || true
-        docker rm sonarqube || true
-      '''
+        node {
+            echo "🧹 Limpiando recursos..."
+            sh 'echo "Aquí comandos de limpieza o cierre"'
+        }
     }
-  }
+}
 }
