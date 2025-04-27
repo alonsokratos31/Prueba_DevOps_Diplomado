@@ -20,8 +20,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Levantar SonarQube en Docker
+        run: |
+          docker run -d --name sonar -p 9000:9000 sonarqube:lts
+          echo "⏳ Esperando que SonarQube levante..."
+          sleep 60  # Da tiempo a SonarQube para levantarse
+
       - name: Compilar y empaquetar la app (sin tests)
         run: mvn clean package spring-boot:repackage -DskipTests
+
+      - name: Escanear código con SonarQube
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=CursoDevSecOpsTestFinal \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       - name: Instalar Chrome y ChromeDriver desde repositorios compatibles
         run: |
@@ -66,4 +79,3 @@ jobs:
       - name: Detener la aplicación
         run: |
           kill $(cat pid.txt) || echo "No se pudo detener la app"
-
