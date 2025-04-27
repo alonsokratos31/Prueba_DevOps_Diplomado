@@ -16,8 +16,11 @@ pipeline {
     }
 
     stage('Build y Package') {
+      tools {
+        maven 'mavenlocal'  // El nombre aquí debe coincidir con el que configuraste en Jenkins
+      }
       steps {
-        sh 'mavenlocal clean package spring-boot:repackage -DskipTests'
+        sh 'mvn clean package spring-boot:repackage -DskipTests'
       }
     }
 
