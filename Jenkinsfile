@@ -30,6 +30,9 @@ pipeline {
     }
 
     stage('Análisis SonarQube') {
+      tools {
+        maven 'mavenlocal'  // El nombre aquí debe coincidir con el que configuraste en Jenkins
+      }
       steps {
         withSonarQubeEnv('SonarQube') {
           sh """
