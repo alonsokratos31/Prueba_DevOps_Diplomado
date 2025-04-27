@@ -17,13 +17,13 @@ pipeline {
 
     stage('Build y Package') {
       steps {
-        sh 'mvn clean package spring-boot:repackage -DskipTests'
+        sh 'mavenlocal clean package spring-boot:repackage -DskipTests'
       }
     }
 
     stage('Análisis SonarQube') {
       steps {
-        withSonarQubeEnv('SonarQubeServer') {
+        withSonarQubeEnv('SonarQube') {
           sh """
             mvn sonar:sonar \
               -Dsonar.projectKey=CursoDevSecOpsTestFinal \
@@ -80,7 +80,7 @@ pipeline {
 
     stage('Tests de Selenium') {
       steps {
-        sh 'mvn test -Dtest=com.ejemplo.calculadora.CalculadoraUITest'
+        sh 'mavenlocal test -Dtest=com.ejemplo.calculadora.CalculadoraUITest'
       }
     }
 
@@ -98,8 +98,6 @@ pipeline {
         if [ -f pid.txt ]; then
           kill $(cat pid.txt) || echo "No se pudo detener la app"
         fi
-        docker stop sonarqube || true
-        docker rm sonarqube || true
       '''
     }
   }
