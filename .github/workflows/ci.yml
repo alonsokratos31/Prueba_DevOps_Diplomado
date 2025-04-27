@@ -1,27 +1,14 @@
-name: CI - Build, Run & SonarQube for UAT
+name: CI - Build & Run for UAT
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-and-analyze:
+  build-and-run:
     runs-on: ubuntu-latest
-
-    services:
-      sonarqube:
-        image: sonarqube:9.9-community
-        ports:
-          - 9000:9000
-        options: >-
-          --health-cmd "curl --fail http://localhost:9000/api/system/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        env:
-          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true" # Simplifica arranque en contenedor chico
 
     steps:
       - name: Checkout código fuente
@@ -30,36 +17,13 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Instalar Maven
-        run: sudo apt-get update && sudo apt-get install -y maven
-
-      - name: Esperar que SonarQube esté disponible
-        run: |
-          echo "Esperando que SonarQube se levante..."
-          for i in {1..15}; do
-            if curl -s http://localhost:9000/api/system/health | grep -q '"status":"UP"'; then
-              echo "✅ SonarQube está listo"
-              break
-            else
-              echo "⏳ Esperando SonarQube... intento $i"
-              sleep 5
-            fi
-          done
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Compilar y empaquetar la app (sin tests)
         run: mvn clean package spring-boot:repackage -DskipTests
 
-      - name: Analizar con SonarQube
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=calculadora-api \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
-      - name: Instalar Chrome y ChromeDriver
+      - name: Instalar Chrome y ChromeDriver desde repositorios compatibles
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-chromedriver chromium-browser
