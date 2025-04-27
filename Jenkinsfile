@@ -2,13 +2,18 @@ pipeline {
   agent { label 'trabajo' } // Especifica el label del agente donde debe ejecutarse el trabajo
 
   environment {
-    JAVA_HOME = tool name: 'JDK 24', type: 'jdk'
+    JAVA_HOME = tool name: 'JDK-24', type: 'jdk'
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
     SONARQUBE_URL = 'http://host.docker.internal:9000'
     SONARQUBE_TOKEN = 'sqb_84b561786662b143d281fe95cd085ddd89e5328f' // Define este secreto en Jenkins
   }
 
   stages {
+     stage('Verificar JAVA_HOME') {
+      steps {
+        sh 'echo $JAVA_HOME' // Esto imprimirá la ruta de JAVA_HOME para asegurarte de que esté bien configurado
+      }
+    }
     stage('Checkout Código') {
       steps {
         checkout scm
