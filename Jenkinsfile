@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'Calculadora-API-CI' } // Especifica el label del agente donde debe ejecutarse el trabajo
+  agent { label 'master' } // Especifica el label del agente donde debe ejecutarse el trabajo
 
   environment {
     JAVA_HOME = tool name: 'JDK 17', type: 'jdk'
