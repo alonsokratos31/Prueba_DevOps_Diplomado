@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'master' } // Especifica el label del agente donde debe ejecutarse el trabajo
+  agent { label 'Principal' } // Especifica el label del agente donde debe ejecutarse el trabajo
 
   environment {
     JAVA_HOME = tool name: 'JDK 17', type: 'jdk'
