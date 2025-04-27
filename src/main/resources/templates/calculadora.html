@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora</title>
+</head>
+<body>
+    <h1>Calculadora Básica</h1>
+
+    <form id="formulario">
+        <label>Número 1:</label>
+        <input type="number" name="num1" required><br><br>
+
+        <label>Número 2:</label>
+        <input type="number" name="num2" required><br><br>
+
+        <label>Operación:</label>
+        <select id="operacion" name="operacion">
+            <option value="sumar">Sumar</option>
+            <option value="restar">Restar</option>
+            <option value="multiplicar">Multiplicar</option>
+            <option value="dividir">Dividir</option>
+        </select><br><br>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <div id="resultado"></div>
+
+    <script>
+        document.getElementById("formulario").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const op = document.getElementById("operacion").value;
+            const num1 = this.num1.value;
+            const num2 = this.num2.value;
+
+            fetch(`/api/calculadora/${op}?a=${num1}&b=${num2}`)
+                .then(async response => {
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.message || 'Error desconocido');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("resultado").innerHTML = `<h2>Resultado: ${data}</h2>`;
+                })
+                .catch(error => {
+                    document.getElementById("resultado").innerHTML = `<h2 style="color:red">Error: ${error.message}</h2>`;
+                });
+        });
+    </script>
+</body>
+</html>
