@@ -2,6 +2,9 @@ package com.ejemplo.calculadora.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 
 @Controller
@@ -16,7 +19,7 @@ public class CalculadoraController {
 
     @GetMapping("/sumar")
     public ResponseEntity<Double> sumar(@RequestParam(name = "a") double a, @RequestParam(name = "b") double b) {
-        return ResponseEntity.ok(a + b);  // Devolver el resultado en un ResponseEntity
+        return ResponseEntity.ok(a + b); // Devolver el resultado en un ResponseEntity
     }
 
     @GetMapping("/restar")
@@ -31,7 +34,16 @@ public class CalculadoraController {
 
     @GetMapping("/dividir")
     public ResponseEntity<Double> dividir(@RequestParam(name = "a") double a, @RequestParam(name = "b") double b) {
-        if (b == 0) throw new IllegalArgumentException("No se puede dividir por cero");
+        if (b == 0)
+            throw new IllegalArgumentException("No se puede dividir por cero");
         return ResponseEntity.ok(a / b);
+    }
+
+    // Método vulnerable a inyección de comandos
+    @GetMapping("/ping")
+    public String ping(@RequestParam String ip) throws IOException {
+        // 🔥 Esta línea puede ser detectada como una amenaza por SonarQube
+        Process process = Runtime.getRuntime().exec("ping " + ip);
+        return "Comando enviado";
     }
 }
