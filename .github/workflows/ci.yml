@@ -56,19 +56,20 @@ jobs:
         run: |
           java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar &
           echo $! > pid.txt
+          sleep 10 # Añadir una pausa de 10 segundos después de iniciar la app
 
-      - name: Esperar que la app esté disponible
+      - name: Esperar que la app esté disponible (verificando el endpoint específico)
         run: |
-          for i in {1..15}; do
-            if curl -s http://localhost:8080/; then
-              echo "✅ App disponible"
+          for i in {1..20}; do # Aumentar el número de intentos
+            if curl -s http://localhost:8080/api/calculadora/sumar?a=1&b=1; then # Verificar un endpoint específico
+              echo "✅ App disponible en /api/calculadora/"
               exit 0
             else
               echo "⏳ Esperando la app... intento $i"
               sleep 5
             fi
           done
-          echo "❌ La app no se levantó a tiempo"
+          echo "❌ La app no se levantó a tiempo en /api/calculadora/"
           exit 1
 
       - name: Probar endpoint de ejemplo
