@@ -37,6 +37,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Instalar Chrome y ChromeDriver desde repositorios compatibles
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver chromium-browser
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
+          chromedriver --version
+
       - name: Build and analyze with SonarQube (sin tests en Sonar)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -44,13 +51,6 @@ jobs:
 
       - name: Compilar y empaquetar la app (sin tests)
         run: mvn clean package spring-boot:repackage -DskipTests
-
-      - name: Instalar Chrome y ChromeDriver desde repositorios compatibles
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-chromedriver chromium-browser
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
-          chromedriver --version
 
       - name: Ejecutar la aplicación en segundo plano
         run: |
