@@ -38,12 +38,4 @@ public class CalculadoraController {
             throw new IllegalArgumentException("No se puede dividir por cero");
         return ResponseEntity.ok(a / b);
     }
-
-    // Método vulnerable a inyección de comandos
-    @GetMapping("/ping")
-    public String ping(@RequestParam String ip) throws IOException {
-        // 🔥 Esta línea puede ser detectada como una amenaza por SonarQube
-        Process process = Runtime.getRuntime().exec("ping " + ip);
-        return "Comando enviado";
-    }
 }
