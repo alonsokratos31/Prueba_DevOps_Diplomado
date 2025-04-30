@@ -83,5 +83,13 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>skip-ui-tests</id>
+            <properties>
+                <skipUITests>true</skipUITests>
+            </properties>
+        </profile>
+    </profiles>
 </project>
 

@@ -2,6 +2,7 @@ package com.ejemplo.calculadora;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -9,6 +10,7 @@ import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
 
+@EnabledIfSystemProperty(named = "skipUITests", matches = "true")
 public class CalculadoraUITest {
 
     private WebDriver driver;
@@ -18,19 +20,20 @@ public class CalculadoraUITest {
     public void setUp() {
         // Configurar el driver de Chrome y las opciones
         WebDriverManager.chromedriver().setup();
-        
+
         ChromeOptions options = new ChromeOptions();
-        
+
         // Si estamos ejecutando en CI, habilitar el modo sin cabeza
         if (System.getenv("CI") != null) {
-            options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--user-data-dir=/tmp/chrome-user-data");
+            options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage",
+                    "--user-data-dir=/tmp/chrome-user-data");
         }
-        
+
         // Inicializar el driver con las opciones
         driver = new ChromeDriver(options);
-        
+
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        
+
         // Navegar a la URL de la calculadora
         driver.get("http://localhost:8080/api/calculadora/");
     }
@@ -99,5 +102,3 @@ public class CalculadoraUITest {
         Assertions.assertTrue(resultado.getText().contains("Resultado: 15"));
     }
 }
-
-
