@@ -56,12 +56,12 @@ jobs:
         run: |
           java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar &
           echo $! > pid.txt
-          sleep 10 # Añadir una pausa de 10 segundos después de iniciar la app
+          sleep 10 # Pausa después de iniciar la app
 
       - name: Esperar que la app esté disponible (verificando el endpoint específico)
         run: |
-          for i in {1..20}; do # Aumentar el número de intentos
-            if curl -s http://localhost:8080/api/calculadora/sumar?a=1&b=1; then # Verificar un endpoint específico
+          for i in {1..25}; do # Aumentar aún más el número de intentos
+            if curl -s http://localhost:8080/api/calculadora/sumar?a=1&b=1; then
               echo "✅ App disponible en /api/calculadora/"
               exit 0
             else
@@ -72,10 +72,13 @@ jobs:
           echo "❌ La app no se levantó a tiempo en /api/calculadora/"
           exit 1
 
-      - name: Probar endpoint de ejemplo
+      - name: Probar accesibilidad local antes de Selenium
         run: |
-          echo "Probando endpoint /api/calculadora/sumar?a=5&b=7"
-          curl -v "http://localhost:8080/api/calculadora/sumar?a=5&b=7"
+          echo "Intentando acceder a http://localhost:8080/api/calculadora/ desde el runner..."
+          curl -v http://localhost:8080/api/calculadora/
+
+      - name: Pausa adicional antes de Selenium
+        run: sleep 15 # Pausa de 15 segundos adicionales
 
       - name: Ejecutar pruebas de Selenium
         run: |
