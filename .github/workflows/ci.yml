@@ -1,20 +1,21 @@
-name: CI - Build & Run for UAT
+name: CI - Build, Run for UAT & SonarQube Analysis
 
 on:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  build-and-run:
+  build-and-analyze:
+    name: Build and Analyze
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout código fuente
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Necesario para SonarQube
+          fetch-depth: 0 # Shallow clones should be disabled for SonarQube
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -36,28 +37,29 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Análisis SonarQube
+      - name: Build and analyze with SonarQube (sin tests en Sonar)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=alonsokratos31_Prueba_DevOps_Diplomado
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=alonsokratos31_Prueba_DevOps_Diplomado -Dsonar.skipPackage=true
 
       - name: Compilar y empaquetar la app (sin tests)
         run: mvn clean package spring-boot:repackage -DskipTests
 
-      - name: Instalar Google Chrome
+      - name: Instalar Chrome y ChromeDriver desde repositorios compatibles
         run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-          google-chrome --version
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver chromium-browser
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
+          chromedriver --version
 
       - name: Ejecutar la aplicación en segundo plano
         run: |
-          nohup java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar > app.log 2>&1 &
+          java -Dspring.profiles.active=prod -Dheadless -jar target/*.jar &
           echo $! > pid.txt
 
       - name: Esperar que la app esté disponible
         run: |
-          for i in {1..20}; do
+          for i in {1..15}; do
             if curl -s http://localhost:8080/; then
               echo "✅ App disponible"
               exit 0
@@ -81,7 +83,7 @@ jobs:
       - name: Mostrar logs de la app
         run: |
           echo "Logs de la app:"
-          cat app.log || echo "No se encontró el archivo de logs"
+          cat nohup.out || echo "No se encontró el archivo de logs"
 
       - name: Detener la aplicación
         run: |
